@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Estudio Contable</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#F0F2F5;color:#1A2E4A;font-size:14px}
+:root{
+  --navy:#1A2E4A;--accent:#E8600A;--green:#1B7A4A;--gsof:#E8F5EE;
+  --yellow:#7A5800;--ysof:#FFF6DC;--red:#B52A1C;--rsof:#FDECEA;
+  --muted:#6B7A8D;--border:#DDE2EA;--surf:#FFF;--bg:#F0F2F5
+}
+#wrap{display:flex;height:100vh;overflow:hidden}
+#sb{width:200px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.sb-logo{padding:16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logo .t{font-size:14px;font-weight:800;color:var(--accent)}
+.sb-logo .s{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
+.sb-nav{flex:1;padding:6px 0}
+.nb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;
+  color:rgba(255,255,255,.55);padding:9px 14px;cursor:pointer;font-size:12px;
+  font-weight:500;text-align:left;border-left:3px solid transparent;transition:all .12s}
+.nb:hover{background:rgba(255,255,255,.08);color:#fff}
+.nb.on{background:rgba(255,255,255,.13);color:#fff;font-weight:700;border-left-color:var(--accent)}
+.sb-foot{padding:8px 14px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.25)}
+#topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 20px;
+  height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#tb-title{font-size:15px;font-weight:700}
+#content{padding:18px 20px;flex:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--surf);border-radius:8px;padding:13px 15px;border:1px solid var(--border)}
+.kv{font-size:24px;font-weight:800;line-height:1}
+.kl{font-size:11px;color:var(--muted);margin-top:3px}
+.card{background:var(--surf);border-radius:8px;padding:14px 16px;border:1px solid var(--border);margin-bottom:12px}
+.card-t{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.tbl{background:var(--surf);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:7px 11px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.3px;border-bottom:1.5px solid var(--border);background:var(--bg)}
+td{padding:7px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#FAFBFC}
+.btn{border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:opacity .12s}
+.btn:hover{opacity:.85}
+.ba{background:var(--accent);color:#fff}
+.bn{background:var(--navy);color:#fff}
+.bg{background:none;border:1.5px solid var(--border);color:var(--navy)}
+.br{background:var(--red);color:#fff}
+.bsm{padding:3px 8px;font-size:11px;border-radius:5px}
+.bdg{display:inline-block;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700}
+.sem{border-radius:5px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;border:none}
+.ri{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:12px;margin-bottom:4px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.flt{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center}
+.flt select,.flt input{padding:5px 9px;border-radius:6px;border:1.5px solid var(--border);
+  font-size:12px;color:var(--navy);background:var(--surf);outline:none}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;
+  align-items:flex-start;justify-content:center;padding-top:48px;overflow-y:auto}
+.ov.on{display:flex}
+.modal{background:var(--surf);border-radius:10px;padding:22px 24px;width:92%;
+  max-width:480px;margin-bottom:40px;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.mh{font-size:14px;font-weight:700;margin-bottom:13px;display:flex;justify-content:space-between;align-items:center}
+.mh .cls{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1}
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:11px;font-weight:600;margin-bottom:3px;color:var(--navy)}
+.fld input,.fld select,.fld textarea{width:100%;padding:7px 10px;border-radius:6px;
+  border:1.5px solid var(--border);font-size:13px;color:var(--navy);background:var(--surf);
+  outline:none;font-family:inherit}
+.fld textarea{min-height:65px;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--accent)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.al{border-radius:8px;padding:11px 14px;margin-bottom:10px}
+.al-r{background:var(--rsof);border:1px solid #E8897F33}
+.al-r .ah{color:var(--red);font-size:12px;font-weight:700;margin-bottom:6px}
+.al-g{background:var(--gsof);border:1px solid #9FD4B5}
+.trow{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;flex-wrap:wrap;gap:7px}
+.trow h2{font-size:15px;font-weight:700;margin:0}
+.empty{text-align:center;padding:36px 0;color:var(--muted);font-size:13px}
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.cl-card{background:var(--surf);border-radius:8px;padding:13px 14px;border:1px solid var(--border)}
+.exp-card{background:var(--surf);border-radius:8px;padding:12px 14px;border:1px solid var(--border);
+  margin-bottom:8px;border-left:4px solid transparent}
+.exp-card.urg{border-left-color:var(--red)}
+.exp-card.act{border-left-color:var(--accent)}
+.exp-card.res{border-left-color:var(--green);opacity:.6}
+.lib-card{background:var(--surf);border-radius:8px;padding:13px 15px;border:1px solid var(--border);margin-bottom:9px}
+.lrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.lrow:last-child{border-bottom:none}
+.llbl{color:var(--muted);min-width:160px;font-size:11px}
+.imp-chk{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.irow{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;
+  border:1px solid var(--border);cursor:pointer;font-size:11px;background:var(--bg)}
+.sb-sync{padding:8px 14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:5px}
+.btn-sync{display:block;width:100%;padding:7px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .12s}
+.btn-sync:hover{background:rgba(255,255,255,.15);color:#fff}
+.btn-sync-imp{cursor:pointer}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="sb">
+  <div class="sb-logo"><div class="t">ESTUDIO</div><div class="s">Panel de gestión</div></div>
+  <nav class="sb-nav">
+    <button class="nb on" onclick="go('dash',this)">📊 Resumen</button>
+    <button class="nb" onclick="go('venc',this)">📅 Vencimientos</button>
+    <button class="nb" onclick="go('gen',this)">⚡ Generar mes</button>
+    <button class="nb" onclick="go('seg',this)">🔎 Seguimiento</button>
+    <button class="nb" onclick="go('lib',this)">📚 Libros soc.</button>
+    <button class="nb" onclick="go('hon',this)">💰 Honorarios</button>
+    <button class="nb" onclick="go('cl',this)">👥 Clientes</button>
+  </nav>
+  <div class="sb-sync">
+    <button class="btn-sync" onclick="exportarDatos()">⬇ Exportar datos</button>
+    <label class="btn-sync btn-sync-imp" title="Importar datos">⬆ Importar datos<input type="file" accept=".json" style="display:none" onchange="importarDatos(event)"/></label>
+  </div>
+  <div class="sb-foot">IVA 18-22 · ARBA RN6/26 · CM RG20/25</div>
+</div>
+<div id="main">
+  <div id="topbar"><div id="tb-title">Resumen</div><div id="tb-btn"></div></div>
+  <div id="content"></div>
+</div>
+</div>
+
+<!-- MODALES -->
+<div class="ov" id="ov-obl" onclick="if(event.target===this)cm('ov-obl')">
+<div class="modal">
+  <div class="mh"><span>Obligación</span><button class="cls" onclick="cm('ov-obl')">×</button></div>
+  <div class="fld"><label>Cliente</label><select id="ob-cl"></select></div>
+  <div class="fld"><label>Impuesto</label><select id="ob-imp" onchange="obToggle()"></select></div>
+  <div id="ob-men"><div class="r2">
+    <div class="fld"><label>Mes devengado</label><select id="ob-mes"></select></div>
+    <div class="fld"><label>Año</label><select id="ob-anio"></select></div>
+  </div></div>
+  <div id="ob-anu" style="display:none"><div class="fld"><label>Año fiscal</label><select id="ob-anio2"></select></div></div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-obl')">Cancelar</button><button class="btn ba" onclick="saveObl()">Guardar</button></div>
+</div></div>
+
+<div class="ov" id="ov-cl" onclick="if(event.target===this)cm('ov-cl')">
+<div class="modal">
+  <div class="mh"><span id="cl-t">Cliente</span><button class="cls" onclick="cm('ov-cl')">×</button></div>
+  <div class="fld"><label>Nombre</label><input id="cl-nom"/></div>
+  <div class="r2">
+    <div class="fld"><label>CUIT personal</label><input id="cl-cuit" maxlength="11" oninput="this.value=this.value.replace(/\D/g,'')"/></div>
+    <div class="fld"><label>CUIT sociedad</label><input id="cl-cuits" maxlength="11" oninput="this.value=this.value.replace(/\D/g,'')"/></div>
+  </div>
+  <div class="r2">
+    <div class="fld"><label>Tipo</label><select id="cl-tipo">
+      <option value="ph">Persona humana</option>
+      <option value="soc">Sociedad</option>
+      <option value="mono">Monotributista</option>
+    </select></div>
+    <div class="fld"><label>Mes cierre ejercicio</label><select id="cl-cie">
+      <option value="">N/A</option>
+      <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+      <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+      <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+      <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+    </select></div>
+  </div>
+  <div class="fld"><label>Impuestos asignados</label><div class="imp-chk" id="cl-imps"></div></div>
+  <div class="fld"><label>Notas</label><textarea id="cl-notas" rows="2"></textarea></div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-cl')">Cancelar</button><button class="btn ba" onclick="saveCl()">Guardar</button></div>
+</div></div>
+
+<div class="ov" id="ov-seg" onclick="if(event.target===this)cm('ov-seg')">
+<div class="modal">
+  <div class="mh"><span id="seg-t">Expediente</span><button class="cls" onclick="cm('ov-seg')">×</button></div>
+  <div class="fld"><label>Cliente</label><select id="sg-cl"></select></div>
+  <div class="r2">
+    <div class="fld"><label>Tipo</label><select id="sg-tp">
+      <option value="inspeccion">Inspección</option><option value="plan_pago">Plan de pagos</option>
+      <option value="embargo">Embargo</option><option value="presentacion">Presentación especial</option>
+      <option value="deuda">Deuda/Intimación</option><option value="otro">Otro</option>
+    </select></div>
+    <div class="fld"><label>Prioridad</label><select id="sg-pr">
+      <option value="urgente">🔴 Urgente</option>
+      <option value="activo" selected>🟠 Activo</option>
+      <option value="normal">🟡 Normal</option>
+    </select></div>
+  </div>
+  <div class="fld"><label>Descripción / próximos pasos</label><textarea id="sg-de"></textarea></div>
+  <div class="r2">
+    <div class="fld"><label>Fecha límite</label><input type="date" id="sg-fe"/></div>
+    <div class="fld"><label>Responsable</label><input id="sg-re"/></div>
+  </div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-seg')">Cancelar</button><button class="btn ba" onclick="saveSeg()">Guardar</button></div>
+</div></div>
+
+<div class="ov" id="ov-lib" onclick="if(event.target===this)cm('ov-lib')">
+<div class="modal" style="max-width:520px">
+  <div class="mh"><span>Libros societarios</span><button class="cls" onclick="cm('ov-lib')">×</button></div>
+  <div class="fld"><label>Sociedad</label><select id="lb-cl" onchange="loadLibForm(this.value)"></select></div>
+  <div class="r2"><div class="fld"><label>Libros rubricados</label><select id="lb-lib-e"><option value="al_dia">✅ Al día</option><option value="pendiente">⚠️ Pendiente</option><option value="vencido">🔴 Vencido</option></select></div><div class="fld"><label>Fecha rubricación</label><input type="date" id="lb-lib-f"/></div></div>
+  <div class="r2"><div class="fld"><label>Última Asamblea</label><input type="date" id="lb-asa-f"/></div><div class="fld"><label>Estado</label><select id="lb-asa-e"><option value="al_dia">✅ Al día</option><option value="pendiente">⚠️ Pendiente</option><option value="vencido">🔴 Vencida</option></select></div></div>
+  <div class="r2"><div class="fld"><label>Último Dir./Gerencia</label><input type="date" id="lb-dir-f"/></div><div class="fld"><label>Estado</label><select id="lb-dir-e"><option value="al_dia">✅ Al día</option><option value="pendiente">⚠️ Pendiente</option><option value="vencido">🔴 Vencido</option></select></div></div>
+  <div class="r2"><div class="fld"><label>Autoridades — vence</label><input type="date" id="lb-aut-f"/></div><div class="fld"><label>Estado</label><select id="lb-aut-e"><option value="al_dia">✅ Vigentes</option><option value="por_vencer">⚠️ Por vencer</option><option value="vencido">🔴 Vencidas</option></select></div></div>
+  <div class="r2"><div class="fld"><label>Aprobación balance</label><input type="date" id="lb-bal-f"/></div><div class="fld"><label>Estado</label><select id="lb-bal-e"><option value="al_dia">✅ Aprobado</option><option value="pendiente">⚠️ Pendiente</option><option value="vencido">🔴 Vencido</option></select></div></div>
+  <div class="fld"><label>IGJ / DPPJ</label><select id="lb-igj-e"><option value="al_dia">✅ Al día</option><option value="pendiente">⚠️ Pendiente</option><option value="vencido">🔴 Vencida</option><option value="na">N/A</option></select></div>
+  <div class="fld"><label>Observaciones</label><textarea id="lb-obs" rows="2"></textarea></div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-lib')">Cancelar</button><button class="btn ba" onclick="saveLib()">Guardar</button></div>
+</div></div>
+
+<div class="ov" id="ov-hcfg" onclick="if(event.target===this)cm('ov-hcfg')">
+<div class="modal">
+  <div class="mh"><span>Configurar honorario</span><button class="cls" onclick="cm('ov-hcfg')">×</button></div>
+  <div class="fld"><label>Cliente</label><select id="hc-cl"></select></div>
+  <div class="r2">
+    <div class="fld"><label>Honorario mensual ($)</label><input type="number" id="hc-monto"/></div>
+    <div class="fld"><label>Día habitual de pago</label><input type="number" id="hc-dia" min="1" max="31"/></div>
+  </div>
+  <div class="fld"><label>Forma de pago habitual</label><select id="hc-forma">
+    <option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option>
+    <option value="cheque">Cheque</option><option value="debito">Débito automático</option><option value="otro">Otro</option>
+  </select></div>
+  <div class="fld"><label>Observaciones</label><input id="hc-obs"/></div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-hcfg')">Cancelar</button><button class="btn ba" onclick="saveHonCfg()">Guardar</button></div>
+</div></div>
+
+<div class="ov" id="ov-pago" onclick="if(event.target===this)cm('ov-pago')">
+<div class="modal">
+  <div class="mh"><span id="pg-t">Registrar pago</span><button class="cls" onclick="cm('ov-pago')">×</button></div>
+  <input type="hidden" id="pg-clid"/>
+  <div class="r2">
+    <div class="fld"><label>Mes</label><select id="pg-mes"></select></div>
+    <div class="fld"><label>Año</label><select id="pg-anio"></select></div>
+  </div>
+  <div class="r2">
+    <div class="fld"><label>Monto cobrado ($)</label><input type="number" id="pg-monto"/></div>
+    <div class="fld"><label>Fecha</label><input type="date" id="pg-fecha"/></div>
+  </div>
+  <div class="fld"><label>Forma de pago</label><select id="pg-forma">
+    <option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option>
+    <option value="cheque">Cheque</option><option value="debito">Débito automático</option><option value="otro">Otro</option>
+  </select></div>
+  <div class="fld"><label>Nota / referencia</label><input id="pg-nota"/></div>
+  <div class="mbtns"><button class="btn bg" onclick="cm('ov-pago')">Cancelar</button><button class="btn ba" onclick="savePago()">Registrar</button></div>
+</div></div>
+
+<script>
+// ─── CALENDARIOS ──────────────────────────────────────────────────────────
+const IVA_D = {0:18,1:18,2:19,3:19,4:20,5:20,6:21,7:21,8:22,9:22};
+
+const ARBA = {
+  0: [[23,1,2026],[24,1,2026],[25,1,2026],[26,1,2026],[27,1,2026]],
+  1: [[25,2,2026],[26,2,2026],[27,2,2026],[28,2,2026],[31,2,2026]],
+  2: [[20,3,2026],[21,3,2026],[22,3,2026],[23,3,2026],[24,3,2026]],
+  3: [[18,4,2026],[19,4,2026],[20,4,2026],[21,4,2026],[22,4,2026]],
+  4: [[22,5,2026],[23,5,2026],[24,5,2026],[25,5,2026],[26,5,2026]],
+  5: [[20,6,2026],[21,6,2026],[22,6,2026],[23,6,2026],[24,6,2026]],
+  6: [[24,7,2026],[25,7,2026],[26,7,2026],[27,7,2026],[28,7,2026]],
+  7: [[21,8,2026],[22,8,2026],[23,8,2026],[24,8,2026],[25,8,2026]],
+  8: [[19,9,2026],[20,9,2026],[21,9,2026],[22,9,2026],[23,9,2026]],
+  9: [[24,10,2026],[25,10,2026],[26,10,2026],[27,10,2026],[30,10,2026]],
+  10:[[21,11,2026],[22,11,2026],[23,11,2026],[28,11,2026],[29,11,2026]],
+  11:[[18,0,2027],[19,0,2027],[20,0,2027],[21,0,2027],[22,0,2027]]
+};
+
+const CM = {
+  11:[[15,0,2026],[16,0,2026],[19,0,2026],[20,0,2026]],
+  0: [[13,1,2026],[18,1,2026],[19,1,2026],[20,1,2026]],
+  1: [[13,2,2026],[16,2,2026],[17,2,2026],[18,2,2026]],
+  2: [[15,3,2026],[16,3,2026],[17,3,2026],[20,3,2026]],
+  3: [[15,4,2026],[18,4,2026],[19,4,2026],[20,4,2026]],
+  4: [[16,5,2026],[17,5,2026],[18,5,2026],[19,5,2026]],
+  5: [[15,6,2026],[16,6,2026],[17,6,2026],[20,6,2026]],
+  6: [[14,7,2026],[18,7,2026],[19,7,2026],[20,7,2026]],
+  7: [[15,8,2026],[16,8,2026],[17,8,2026],[18,8,2026]],
+  8: [[15,9,2026],[16,9,2026],[19,9,2026],[20,9,2026]],
+  9: [[13,10,2026],[16,10,2026],[17,10,2026],[18,10,2026]],
+  10:[[15,11,2026],[16,11,2026],[17,11,2026],[18,11,2026]]
+};
+
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const IMPS = [
+  {id:"iva",  lbl:"IVA",              tipo:"m", col:"#1A2E4A"},
+  {id:"iibb", lbl:"IIBB ARBA",        tipo:"m", col:"#2563EB"},
+  {id:"cm",   lbl:"Conv. Multilateral",tipo:"m", col:"#7C3AED"},
+  {id:"mono", lbl:"Monotributo",      tipo:"m", col:"#0F766E"},
+  {id:"thys", lbl:"Tasa Hig. y Seg.", tipo:"m", col:"#BE185D"},
+  {id:"gaph", lbl:"Ganancias PH",     tipo:"a", col:"#E8600A"},
+  {id:"bp",   lbl:"Bienes Personales",tipo:"a", col:"#D97706"},
+  {id:"psoc", lbl:"Part. Societarias",tipo:"a", col:"#0891B2"},
+  {id:"gsoc", lbl:"Ganancias Soc.",   tipo:"a", col:"#059669"},
+  {id:"bal",  lbl:"Balance",          tipo:"a", col:"#DC2626"},
+  {id:"lrub", lbl:"Libros/Rubricación",tipo:"a",col:"#7C3AED"}
+];
+
+const TSEG = {
+  inspeccion:{l:"Inspección",c:"#B52A1C",b:"#FDECEA"},
+  plan_pago:{l:"Plan de pagos",c:"#8A6000",b:"#FFF6DC"},
+  embargo:{l:"Embargo",c:"#7C1C8A",b:"#F5E8FD"},
+  presentacion:{l:"Presentación",c:"#0B5FA5",b:"#EBF4FF"},
+  deuda:{l:"Deuda",c:"#B52A1C",b:"#FDECEA"},
+  otro:{l:"Otro",c:"#6B7A8D",b:"#F0F2F5"}
+};
+
+const ESTC = {
+  al_dia:{c:"var(--green)",b:"var(--gsof)",l:"Al día"},
+  pendiente:{c:"var(--yellow)",b:"var(--ysof)",l:"Pendiente"},
+  vencido:{c:"var(--red)",b:"var(--rsof)",l:"Vencido"},
+  por_vencer:{c:"var(--yellow)",b:"var(--ysof)",l:"Por vencer"},
+  na:{c:"var(--muted)",b:"var(--bg)",l:"N/A"}
+};
+
+const HOY = new Date(); HOY.setHours(0,0,0,0);
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────
+const SK = {cl:"ec4_cl", obl:"ec4_ob", seg:"ec4_sg", lib:"ec4_lb", hcfg:"ec4_hc", pag:"ec4_pg"};
+
+let clientes, obligaciones, seguimientos, libros, honCfg, pagos;
+
+function saveAll() {
+  localStorage.setItem(SK.cl,  JSON.stringify(clientes));
+  localStorage.setItem(SK.obl, JSON.stringify(obligaciones));
+  localStorage.setItem(SK.seg, JSON.stringify(seguimientos));
+  localStorage.setItem(SK.lib, JSON.stringify(libros));
+  localStorage.setItem(SK.hcfg,JSON.stringify(honCfg));
+  localStorage.setItem(SK.pag, JSON.stringify(pagos));
+}
+
+function loadAll() {
+  function g(k, def) {
+    try { return JSON.parse(localStorage.getItem(k) || "null") || def; }
+    catch { return def; }
+  }
+  clientes     = g(SK.cl,  JSON.parse(JSON.stringify(BASE)));
+  obligaciones = g(SK.obl, []);
+  seguimientos = g(SK.seg, []);
+  libros       = g(SK.lib, []);
+  honCfg       = g(SK.hcfg,[]);
+  pagos        = g(SK.pag, []);
+}
+
+// ─── FECHAS ───────────────────────────────────────────────────────────────
+function vencIVA(mes, term) {
+  const t = parseInt(term) || 0;
+  const nx = mes===11 ? 0 : mes+1;
+  const na = mes===11 ? HOY.getFullYear()+1 : HOY.getFullYear();
+  return new Date(na, nx, IVA_D[t] || 18);
+}
+function vencARBA(mes, term) {
+  const t = parseInt(term) || 0;
+  const grp = t<=1?0 : t<=3?1 : t<=5?2 : t<=7?3 : 4;
+  const row = ARBA[mes]; if (!row) return null;
+  return new Date(row[grp][2], row[grp][1], row[grp][0]);
+}
+function vencCM(mes, term) {
+  const t = parseInt(term) || 0;
+  const grp = t<=2?0 : t<=5?1 : t<=7?2 : 3;
+  const row = CM[mes]; if (!row) return null;
+  return new Date(row[grp][2], row[grp][1], row[grp][0]);
+}
+function vencMono(mes, anio) {
+  const fixes = {5:22, 8:21, 11:21};
+  return new Date(anio, mes, fixes[mes] || 20);
+}
+function vencTHYS(mes, anio) {
+  return new Date(mes===11?anio+1:anio, mes===11?0:mes+1, 10);
+}
+function vencSoc(impId, cierreM, anioFiscal) {
+  if (!cierreM) return null;
+  const cm = parseInt(cierreM) - 1;
+  const cierre = new Date(anioFiscal, cm, 28);
+  if (impId==="gsoc") { const v=new Date(cierre); v.setMonth(v.getMonth()+5); v.setDate(v.getDate()+15); return v; }
+  if (impId==="bal")  { const v=new Date(cierre); v.setMonth(v.getMonth()+4); return v; }
+  if (impId==="psoc") { const v=new Date(cierre); v.setMonth(v.getMonth()+7); return v; }
+  return null;
+}
+
+function calcFecha(o, cl) {
+  const term = (cl && cl.cuit ? cl.cuit : "0").slice(-1);
+  switch(o.impId) {
+    case "iva":  return vencIVA(o.mes, term);
+    case "iibb": return vencARBA(o.mes, term);
+    case "cm":   return vencCM(o.mes, term);
+    case "mono": return vencMono(o.mes, o.anio);
+    case "thys": return vencTHYS(o.mes, o.anio);
+    case "gaph": case "bp": return new Date(2026,6,27);
+    case "gsoc": case "bal": case "psoc":
+      return cl && cl.cierreM ? vencSoc(o.impId, cl.cierreM, o.anio)
+        : (o.impId==="gsoc"?new Date(2026,7,15):o.impId==="bal"?new Date(2026,7,31):new Date(2026,6,27));
+    case "lrub": return new Date(2026,11,31);
+    default: return null;
+  }
+}
+
+function diasHasta(f) { return f ? Math.ceil((f-HOY)/86400000) : null; }
+
+function semColor(d, est) {
+  if (est==="presentado"||est==="pagado") return {c:"var(--green)",b:"var(--gsof)",l:est==="pagado"?"✓ Pagado":"✓ Presentado"};
+  if (d===null) return {c:"var(--muted)",b:"var(--bg)",l:"—"};
+  if (d<0)  return {c:"var(--red)",  b:"var(--rsof)",l:"Vencida"};
+  if (d<=5) return {c:"var(--red)",  b:"var(--rsof)",l:d+"d"};
+  if (d<=15)return {c:"var(--yellow)",b:"var(--ysof)",l:d+"d"};
+  return {c:"var(--green)",b:"var(--gsof)",l:d+"d"};
+}
+
+function oblRich(o) {
+  const cl  = clientes.find(c=>c.id===o.clId) || {};
+  const imp = IMPS.find(i=>i.id===o.impId) || {lbl:o.impId, col:"#888"};
+  const f   = calcFecha(o, cl);
+  const d   = diasHasta(f);
+  return {...o, f, d, sem:semColor(d,o.est), clNom:cl.nombre||"—", clCuit:cl.cuit||"",
+          impLbl:imp.lbl, impCol:imp.col, impTipo:imp.tipo};
+}
+
+// ─── HONORARIOS HELPERS ───────────────────────────────────────────────────
+function fmtM(n) { return n!==null&&n!==undefined ? "$"+Math.round(n).toLocaleString("es-AR") : "—"; }
+function getHcfg(clId) { return honCfg.find(h=>h.clId===clId) || null; }
+function montoPagadoMes(clId,mes,anio) {
+  return pagos.filter(p=>p.clId===clId&&p.mes===mes&&p.anio===anio).reduce((s,p)=>s+(+p.monto||0),0);
+}
+function deudaCliente(clId) {
+  const h = getHcfg(clId); if (!h||!h.monto) return 0;
+  let deuda = 0;
+  for (let i=11; i>=0; i--) {
+    const d = new Date(HOY.getFullYear(), HOY.getMonth()-i, 1);
+    const pagado = montoPagadoMes(clId, d.getMonth(), d.getFullYear());
+    if (pagado < +h.monto) deuda += +h.monto - pagado;
+  }
+  return deuda;
+}
+function deudaTotal() { return clientes.reduce((s,c)=>s+deudaCliente(c.id),0); }
+function estHon(clId) {
+  const h = getHcfg(clId); if (!h||!h.monto) return {c:"var(--muted)",b:"var(--bg)",l:"Sin config"};
+  const d = deudaCliente(clId);
+  if (d<=0) return {c:"var(--green)",b:"var(--gsof)",l:"Al día"};
+  if (d<=+h.monto) return {c:"var(--yellow)",b:"var(--ysof)",l:"1 mes"};
+  return {c:"var(--red)",b:"var(--rsof)",l:Math.ceil(d/+h.monto)+"m deuda"};
+}
+
+// ─── NAVEGACIÓN ───────────────────────────────────────────────────────────
+let TAB = "dash";
+const TITLES = {dash:"Resumen",venc:"Vencimientos",gen:"Generar mes",
+                seg:"Seguimiento",lib:"Libros societarios",hon:"Honorarios",cl:"Clientes"};
+
+function go(t, btn) {
+  TAB = t;
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  if (btn) btn.classList.add("on");
+  document.querySelectorAll(".ov").forEach(o=>o.classList.remove("on"));
+  document.getElementById("tb-title").textContent = TITLES[t]||"";
+  document.getElementById("tb-btn").innerHTML = "";
+  render();
+}
+
+function render() {
+  const c = document.getElementById("content");
+  c.innerHTML = "";
+  if (TAB==="dash")  rDash(c);
+  else if(TAB==="venc") rVenc(c);
+  else if(TAB==="gen")  rGen(c);
+  else if(TAB==="seg")  rSeg(c);
+  else if(TAB==="lib")  rLib(c);
+  else if(TAB==="hon")  rHon(c);
+  else if(TAB==="cl")   rCl(c);
+}
+
+// ─── RENDER DASH ──────────────────────────────────────────────────────────
+function rDash(c) {
+  const all  = obligaciones.map(oblRich);
+  const prox = all.filter(o=>o.d!==null&&o.d>=0&&o.d<=30&&o.est==="pendiente").sort((a,b)=>a.d-b.d);
+  const venc = all.filter(o=>o.d!==null&&o.d<0&&o.est==="pendiente");
+  const segU = seguimientos.filter(s=>s.estado!=="resuelto"&&s.prio==="urgente");
+  const libA = libros.filter(l=>["lib","asa","dir","aut","bal"].some(k=>{const e=l[k+"_e"]; return e==="vencido"||e==="por_vencer";}));
+  const dt   = deudaTotal();
+
+  c.innerHTML = `
+  <div class="kpis">
+    <div class="kpi"><div class="kv" style="color:var(--navy)">${clientes.length}</div><div class="kl">Clientes</div></div>
+    <div class="kpi"><div class="kv" style="color:var(--accent)">${prox.length}</div><div class="kl">Vencen en 30d</div></div>
+    <div class="kpi"><div class="kv" style="color:var(--red)">${venc.length}</div><div class="kl">Vencidas</div></div>
+    <div class="kpi"><div class="kv" style="color:var(--muted)">${seguimientos.filter(s=>s.estado!=="resuelto").length}</div><div class="kl">Expedientes</div></div>
+    <div class="kpi"><div class="kv" style="color:var(--yellow)">${libA.length}</div><div class="kl">Alertas libros</div></div>
+    <div class="kpi"><div class="kv" style="color:var(--red)">${fmtM(dt)}</div><div class="kl">Deuda honorarios</div></div>
+  </div>
+  ${segU.length ? `<div class="al al-r"><div class="ah">🚨 Urgentes (${segU.length})</div>${segU.map(s=>{const cl=clientes.find(x=>x.id===s.clId)||{};return`<div style="display:flex;gap:8px;font-size:12px;margin-bottom:3px"><strong>${cl.nombre||"—"}</strong><span style="color:var(--muted)">${TSEG[s.tp]?.l||""}</span><span style="margin-left:auto;color:var(--red)">${(s.de||"").slice(0,50)}</span></div>`;}).join("")}</div>`:""} 
+  <div class="card"><div class="card-t">⏰ Vencen en 30 días</div>
+    ${!prox.length ? `<div style="color:var(--muted);font-size:12px">¡Todo al día!</div>` :
+      prox.slice(0,10).map(o=>`<div class="ri" style="background:${o.sem.b}"><div class="dot" style="background:${o.sem.c}"></div><div style="flex:1"><strong>${o.clNom}</strong> <span style="color:var(--muted);font-size:11px">${o.impLbl}</span></div><span style="font-size:11px;color:var(--muted)">${o.f.toLocaleDateString("es-AR")}</span><span style="font-size:11px;font-weight:700;color:${o.sem.c}">${o.sem.l}</span></div>`).join("")}
+  </div>
+  ${venc.length ? `<div class="al al-r"><div class="ah">🔴 Vencidas sin presentar (${venc.length})</div>${venc.map(o=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:3px"><strong>${o.clNom}</strong><span style="color:var(--muted)">${o.impLbl}</span><span style="margin-left:auto;color:var(--red);font-weight:700">${o.f?.toLocaleDateString("es-AR")}</span><button onclick="cicloEst('${o.id}')" style="font-size:10px;background:var(--red);color:#fff;border:none;border-radius:4px;padding:2px 5px;cursor:pointer">OK</button></div>`).join("")}</div>`:""}`;
+}
+
+// ─── RENDER VENC ──────────────────────────────────────────────────────────
+let VM=HOY.getMonth(), VA=HOY.getFullYear(), VCL="", VB="";
+function rVenc(c) {
+  document.getElementById("tb-btn").innerHTML = `<button class="btn ba bsm" onclick="openObl(null)">+ Nueva</button>`;
+  const rows = obligaciones.map(oblRich).filter(o=>{
+    if (VCL && o.clId!==VCL) return false;
+    if (VB && !o.clNom.toLowerCase().includes(VB.toLowerCase()) && !o.impLbl.toLowerCase().includes(VB.toLowerCase())) return false;
+    if (o.impTipo==="m") return o.mes===VM && o.anio===VA;
+    return true;
+  }).sort((a,b)=>(a.d??9999)-(b.d??9999));
+
+  c.innerHTML = `
+  <div class="flt">
+    <select onchange="VM=+this.value;render()">${MESES.map((m,i)=>`<option value="${i}"${i===VM?" selected":""}>${m}</option>`).join("")}</select>
+    <select onchange="VA=+this.value;render()">${[2024,2025,2026,2027].map(y=>`<option${y===VA?" selected":""}>${y}</option>`).join("")}</select>
+    <select onchange="VCL=this.value;render()"><option value="">Todos</option>${clientes.map(cl=>`<option value="${cl.id}"${VCL===cl.id?" selected":""}>${cl.nombre}</option>`).join("")}</select>
+    <input placeholder="Buscar..." value="${VB}" oninput="VB=this.value;render()" style="min-width:130px"/>
+  </div>
+  ${!rows.length ? `<div class="empty">Sin obligaciones para este período.<br>Usá <strong>⚡ Generar mes</strong> para crearlas.</div>` :
+  `<div class="tbl"><table><thead><tr><th>Cliente</th><th>CUIT</th><th>Impuesto</th><th>Período</th><th>Vence</th><th>Estado</th><th></th></tr></thead>
+  <tbody>${rows.map(o=>`<tr>
+    <td><strong>${o.clNom}</strong></td>
+    <td style="font-family:monospace;font-size:10px;color:var(--muted)">${o.clCuit}</td>
+    <td><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:${o.impCol};flex-shrink:0"></span>${o.impLbl}</span></td>
+    <td style="color:var(--muted)">${o.impTipo==="m"?MESES[o.mes].slice(0,3)+" "+o.anio:o.anio}</td>
+    <td style="font-size:11px">${o.f?o.f.toLocaleDateString("es-AR"):"—"}</td>
+    <td><button class="sem" style="background:${o.sem.b};color:${o.sem.c};border:1.5px solid ${o.sem.c}33" onclick="cicloEst('${o.id}')">${o.sem.l}</button></td>
+    <td><button onclick="delObl('${o.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px">×</button></td>
+  </tr>`).join("")}</tbody></table></div>`}`;
+}
+
+// ─── RENDER GEN ───────────────────────────────────────────────────────────
+let GM=HOY.getMonth(), GA=HOY.getFullYear();
+function rGen(c) {
+  const mensual = IMPS.filter(i=>i.tipo==="m");
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-t">⚡ Generar obligaciones mensuales</div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:12px">Crea todas las obligaciones del mes para los clientes que tienen asignado cada impuesto, sin duplicar.</p>
+    <div class="flt" style="margin-bottom:12px">
+      <select id="gm-m">${MESES.map((m,i)=>`<option value="${i}"${i===GM?" selected":""}>${m}</option>`).join("")}</select>
+      <select id="gm-a">${[2024,2025,2026,2027].map(y=>`<option${y===GA?" selected":""}>${y}</option>`).join("")}</select>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px">Impuestos a incluir:</div>
+    <div class="imp-chk" id="gen-chks">${mensual.map(i=>`
+      <label class="irow on" id="gchk-lbl-${i.id}">
+        <input type="checkbox" id="gchk-${i.id}" checked onchange="this.closest('label').classList.toggle('on',this.checked)">
+        <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${i.col}"></span>${i.lbl}</span>
+      </label>`).join("")}
+    </div>
+    <div style="margin-top:14px"><button class="btn bn" onclick="doGenMes()">Generar</button></div>
+    <div id="gen-msg" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <div class="card-t">Generar anuales / societarias</div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:10px">Crea Ganancias PH, Bienes Personales, Ganancias Soc., Balance y Part. Societarias.</p>
+    <div class="flt" style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:600">Año fiscal:</label>
+      <select id="ga-a">${[2023,2024,2025,2026].map(y=>`<option${y===2025?" selected":""}>${y}</option>`).join("")}</select>
+    </div>
+    <button class="btn ba" onclick="doGenAnu()">Generar anuales</button>
+    <div id="gen-msg2" style="margin-top:10px"></div>
+  </div>`;
+}
+
+function doGenMes() {
+  GM = +document.getElementById("gm-m").value;
+  GA = +document.getElementById("gm-a").value;
+  const sel = IMPS.filter(i=>i.tipo==="m" && document.getElementById("gchk-"+i.id)?.checked).map(i=>i.id);
+  if (!sel.length) { document.getElementById("gen-msg").innerHTML=`<div class="al al-r"><div class="ah">Seleccioná al menos un impuesto.</div></div>`; return; }
+  let cr=0, sk=0;
+  clientes.forEach(cl => {
+    sel.forEach(impId => {
+      if (!cl.impIds || !cl.impIds.includes(impId)) return;
+      if (obligaciones.some(o=>o.clId===cl.id&&o.impId===impId&&o.mes===GM&&o.anio===GA)) { sk++; return; }
+      obligaciones.push({id:Date.now().toString()+Math.random().toString(36).slice(2), clId:cl.id, impId, mes:GM, anio:GA, est:"pendiente"});
+      cr++;
+    });
+  });
+  saveAll();
+  document.getElementById("gen-msg").innerHTML=`<div class="al al-g"><strong style="color:var(--green)">✓ Listo.</strong> Se crearon <strong>${cr}</strong> obligaciones para ${MESES[GM]} ${GA}. ${sk?`<span style="color:var(--muted)">(${sk} ya existían)</span>`:""}</div>`;
+}
+
+function doGenAnu() {
+  const anio = +document.getElementById("ga-a").value;
+  const anuIds = ["gaph","bp","psoc","gsoc","bal","lrub"];
+  let cr=0, sk=0;
+  clientes.forEach(cl => {
+    anuIds.forEach(impId => {
+      if (!cl.impIds || !cl.impIds.includes(impId)) return;
+      if (obligaciones.some(o=>o.clId===cl.id&&o.impId===impId&&o.anio===anio)) { sk++; return; }
+      obligaciones.push({id:Date.now().toString()+Math.random().toString(36).slice(2), clId:cl.id, impId, mes:0, anio, est:"pendiente"});
+      cr++;
+    });
+  });
+  saveAll();
+  document.getElementById("gen-msg2").innerHTML=`<div class="al al-g"><strong style="color:var(--green)">✓ Listo.</strong> Se crearon <strong>${cr}</strong> obligaciones anuales ${anio}. ${sk?`<span style="color:var(--muted)">(${sk} ya existían)</span>`:""}</div>`;
+}
+
+// ─── RENDER SEG ───────────────────────────────────────────────────────────
+let SB="", SE="todos";
+function rSeg(c) {
+  document.getElementById("tb-btn").innerHTML=`<button class="btn ba bsm" onclick="openSeg(null)">+ Expediente</button>`;
+  const rows = seguimientos.filter(s=>{
+    if (SE!=="todos" && s.prio!==SE && s.estado!==SE) return false;
+    const cl = clientes.find(x=>x.id===s.clId)||{};
+    if (SB && !cl.nombre?.toLowerCase().includes(SB.toLowerCase()) && !(s.de||"").toLowerCase().includes(SB.toLowerCase())) return false;
+    return true;
+  }).sort((a,b)=>({urgente:0,activo:1,normal:2,resuelto:3}[a.prio]||2)-({urgente:0,activo:1,normal:2,resuelto:3}[b.prio]||2));
+
+  c.innerHTML = `
+  <div class="flt">
+    <select onchange="SE=this.value;render()"><option value="todos">Todos</option><option value="urgente">Urgentes</option><option value="activo">Activos</option><option value="normal">Normal</option><option value="resuelto">Resueltos</option></select>
+    <input placeholder="Buscar..." value="${SB}" oninput="SB=this.value;render()" style="min-width:160px"/>
+  </div>
+  ${!rows.length ? `<div class="empty">Sin expedientes.<br>Usá <strong>+ Expediente</strong> para registrar situaciones especiales.</div>` :
+  rows.map(s=>{
+    const cl=clientes.find(x=>x.id===s.clId)||{};
+    const ts=TSEG[s.tp]||TSEG.otro;
+    const pc={urgente:["var(--red)","var(--rsof)"],activo:["var(--accent)","#FFF0E8"],normal:["var(--muted)","var(--bg)"],resuelto:["var(--green)","var(--gsof)"]}[s.prio]||["var(--muted)","var(--bg)"];
+    const dr=s.fe?diasHasta(new Date(s.fe)):null;
+    return `<div class="exp-card ${s.prio==="urgente"?"urg":s.estado==="resuelto"?"res":"act"}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div><strong style="font-size:13px">${cl.nombre||"—"}</strong> <span class="bdg" style="color:${ts.c};background:${ts.b};margin-left:5px">${ts.l}</span> <span class="bdg" style="color:${pc[0]};background:${pc[1]};font-size:9px;margin-left:3px">${s.prio}</span></div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn bg bsm" onclick="openSeg('${s.id}')">Editar</button>
+          <button class="btn bsm" style="background:${s.estado==="resuelto"?"var(--bg)":"var(--gsof)"};color:${s.estado==="resuelto"?"var(--muted)":"var(--green)"};border:none" onclick="togSeg('${s.id}')">${s.estado==="resuelto"?"↩":"✓"}</button>
+          <button onclick="delSeg('${s.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px">×</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${s.de||""}</div>
+      <div style="display:flex;gap:10px;margin-top:6px;font-size:11px;color:var(--muted)">
+        ${s.fe?`<span>📅 ${new Date(s.fe).toLocaleDateString("es-AR")}${dr!==null?` (${dr>=0?dr+"d":"vencida"})`:""}`:``}
+        ${s.re?`<span>👤 ${s.re}</span>`:""}
+      </div>
+    </div>`;
+  }).join("")}`;
+}
+
+// ─── RENDER LIB ───────────────────────────────────────────────────────────
+function rLib(c) {
+  document.getElementById("tb-btn").innerHTML=`<button class="btn ba bsm" onclick="openLib(null)">+ Editar sociedad</button>`;
+  const socs = clientes.filter(cl=>cl.tipo==="soc"||cl.cuitS);
+  if (!socs.length) { c.innerHTML=`<div class="empty">No hay sociedades cargadas.</div>`; return; }
+  const campos=[{k:"lib",l:"Libros rubricados"},{k:"asa",l:"Última Asamblea"},{k:"dir",l:"Último Dir./Gerencia"},{k:"aut",l:"Autoridades"},{k:"bal",l:"Aprobación balance"},{k:"igj",l:"IGJ / DPPJ"}];
+  c.innerHTML = socs.map(cl=>{
+    const lb = libros.find(l=>l.clId===cl.id)||{};
+    const alertas = campos.filter(f=>{const e=lb[f.k+"_e"]||"pendiente"; return e==="vencido"||e==="por_vencer";});
+    return `<div class="lib-card" style="${alertas.length?"border-left:4px solid var(--red)":""}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-weight:700;font-size:13px">${cl.nombre}</div>
+          <div style="font-family:monospace;font-size:10px;color:var(--muted)">${cl.cuitS||cl.cuit}${cl.cierreM?" · cierre mes "+cl.cierreM:""}</div>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center">
+          ${alertas.length?`<span class="bdg" style="background:var(--rsof);color:var(--red)">${alertas.length} alertas</span>`:""}
+          <button class="btn bg bsm" onclick="openLib('${cl.id}')">Editar</button>
+        </div>
+      </div>
+      ${campos.map(f=>{
+        const est=lb[f.k+"_e"]||"pendiente";
+        const ec=ESTC[est]||ESTC.pendiente;
+        const fstr=lb[f.k+"_f"]?new Date(lb[f.k+"_f"]).toLocaleDateString("es-AR"):"—";
+        return `<div class="lrow"><span class="llbl">${f.l}</span><span style="font-weight:600;font-size:12px">${fstr}</span><span class="bdg" style="margin-left:auto;background:${ec.b};color:${ec.c}">${ec.l}</span></div>`;
+      }).join("")}
+      ${lb.obs?`<div style="font-size:11px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid var(--border)">${lb.obs}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+// ─── RENDER HON ───────────────────────────────────────────────────────────
+let HTAB="res", HCLD=null;
+function rHon(c) {
+  document.getElementById("tb-btn").innerHTML=`<button class="btn ba bsm" onclick="openHcfg(null)">+ Configurar</button>`;
+  const now=HOY, mes=now.getMonth(), anio=now.getFullYear();
+  const mesA=mes===0?11:mes-1, anioA=mes===0?anio-1:anio;
+
+  c.innerHTML=`
+  <div style="display:flex;gap:2px;background:var(--bg);border-radius:7px;padding:3px;margin-bottom:14px;width:fit-content">
+    <button onclick="HTAB='res';render()" style="background:${HTAB==="res"?"var(--surf)":"none"};border:none;padding:5px 13px;border-radius:5px;font-size:12px;font-weight:${HTAB==="res"?700:500};cursor:pointer;color:var(--navy)">Resumen</button>
+    <button onclick="HTAB='det';render()" style="background:${HTAB==="det"?"var(--surf)":"none"};border:none;padding:5px 13px;border-radius:5px;font-size:12px;font-weight:${HTAB==="det"?700:500};cursor:pointer;color:var(--navy)">Por cliente</button>
+  </div>
+  <div id="hon-body"></div>`;
+
+  if (HTAB==="res") {
+    const totF = clientes.reduce((s,cl)=>{const h=getHcfg(cl.id);return s+(h?+h.monto:0);},0);
+    const cobM = clientes.reduce((s,cl)=>s+montoPagadoMes(cl.id,mes,anio),0);
+    const cobA = clientes.reduce((s,cl)=>s+montoPagadoMes(cl.id,mesA,anioA),0);
+    const dt   = deudaTotal();
+    const conD = clientes.map(cl=>({cl,d:deudaCliente(cl.id),h:getHcfg(cl.id)})).filter(x=>x.d>0).sort((a,b)=>b.d-a.d);
+    const conf = clientes.filter(cl=>getHcfg(cl.id)?.monto);
+
+    document.getElementById("hon-body").innerHTML=`
+    <div class="kpis">
+      <div class="kpi"><div class="kv" style="color:var(--navy)">${fmtM(totF)}</div><div class="kl">A facturar este mes</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--green)">${fmtM(cobM)}</div><div class="kl">Cobrado ${MESES[mes].slice(0,3)}</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--accent)">${fmtM(cobA)}</div><div class="kl">Cobrado ${MESES[mesA].slice(0,3)}</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--red)">${fmtM(dt)}</div><div class="kl">Deuda total</div></div>
+    </div>
+    ${conD.length?`<div class="card"><div class="card-t">🔴 Deudores</div>
+    <div class="tbl"><table><thead><tr><th>Cliente</th><th>Honorario</th><th>Deuda</th><th>Últ. pago</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${conD.map(({cl,d,h})=>{
+      const up=pagos.filter(p=>p.clId===cl.id).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))[0];
+      const es=estHon(cl.id);
+      return`<tr>
+        <td><strong>${cl.nombre}</strong></td>
+        <td>${fmtM(h?.monto)}/mes</td>
+        <td style="color:var(--red);font-weight:700">${fmtM(d)}</td>
+        <td style="font-size:11px;color:var(--muted)">${up?new Date(up.fecha).toLocaleDateString("es-AR"):"—"}</td>
+        <td><span class="bdg" style="background:${es.b};color:${es.c}">${es.l}</span></td>
+        <td><button class="btn ba bsm" onclick="openPago('${cl.id}')">Cobrar</button></td>
+      </tr>`;}).join("")}</tbody></table></div></div>`:""}
+    <div class="card"><div class="card-t">Todos los clientes — ${MESES[mes]}</div>
+    <div class="tbl"><table><thead><tr><th>Cliente</th><th>Honorario</th><th>Forma pago</th><th>Cobrado</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${conf.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(cl=>{
+      const h=getHcfg(cl.id);
+      const cob=montoPagadoMes(cl.id,mes,anio);
+      const es=estHon(cl.id);
+      const FP={transferencia:"Transf.",efectivo:"Efectivo",cheque:"Cheque",debito:"Débito",otro:"Otro"};
+      return`<tr>
+        <td><strong>${cl.nombre}</strong></td>
+        <td>${fmtM(h.monto)}</td>
+        <td style="color:var(--muted);font-size:11px">${FP[h.forma]||"—"}</td>
+        <td style="font-weight:${cob>0?700:400};color:${cob>0?"var(--green)":"var(--muted)"}">${cob>0?fmtM(cob):"—"}</td>
+        <td><span class="bdg" style="background:${es.b};color:${es.c}">${es.l}</span></td>
+        <td style="display:flex;gap:4px">
+          <button class="btn ba bsm" onclick="openPago('${cl.id}')">Cobrar</button>
+          <button class="btn bg bsm" onclick="openHcfg('${cl.id}')">⚙</button>
+        </td>
+      </tr>`;}).join("")}</tbody></table></div></div>
+    ${clientes.filter(cl=>!getHcfg(cl.id)?.monto).length?`<div style="background:var(--bg);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--muted)"><strong>${clientes.filter(cl=>!getHcfg(cl.id)?.monto).length} sin configurar:</strong> ${clientes.filter(cl=>!getHcfg(cl.id)?.monto).map(c=>c.nombre).join(", ")}</div>`:""}`;
+  } else {
+    const clId = HCLD || (clientes.find(cl=>getHcfg(cl.id)?.monto)||clientes[0])?.id || "";
+    if (!clId) { document.getElementById("hon-body").innerHTML=`<div class="empty">Sin clientes.</div>`; return; }
+    const cl=clientes.find(c=>c.id===clId)||{};
+    const h=getHcfg(clId)||{};
+    const meses12=[]; for(let i=11;i>=0;i--){const d=new Date(HOY.getFullYear(),HOY.getMonth()-i,1);meses12.push({mes:d.getMonth(),anio:d.getFullYear()});}
+    const totF2=meses12.length*(+h.monto||0);
+    const totC2=meses12.reduce((s,{mes,anio})=>s+montoPagadoMes(clId,mes,anio),0);
+
+    document.getElementById("hon-body").innerHTML=`
+    <div class="flt" style="margin-bottom:12px">
+      <select onchange="HCLD=this.value;render()">${clientes.map(c=>`<option value="${c.id}"${c.id===clId?" selected":""}>${c.nombre}</option>`).join("")}</select>
+      <button class="btn ba bsm" onclick="openPago('${clId}')">+ Pago</button>
+      <button class="btn bg bsm" onclick="openHcfg('${clId}')">⚙ Config</button>
+    </div>
+    <div class="kpis" style="margin-bottom:12px">
+      <div class="kpi"><div class="kv" style="color:var(--navy)">${fmtM(h.monto)}</div><div class="kl">Honorario/mes</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--green)">${fmtM(totC2)}</div><div class="kl">Cobrado 12m</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--accent)">${fmtM(totF2)}</div><div class="kl">Facturado 12m</div></div>
+      <div class="kpi"><div class="kv" style="color:var(--red)">${fmtM(deudaCliente(clId))}</div><div class="kl">Deuda</div></div>
+    </div>
+    <div class="tbl"><table><thead><tr><th>Período</th><th>Honorario</th><th>Cobrado</th><th>Dif.</th><th>Detalle</th><th></th></tr></thead>
+    <tbody>${meses12.map(({mes,anio})=>{
+      const ps=pagos.filter(p=>p.clId===clId&&p.mes===mes&&p.anio===anio);
+      const cob=ps.reduce((s,p)=>s+(+p.monto||0),0);
+      const hm=+h.monto||0;
+      const diff=cob-hm;
+      const fut=new Date(anio,mes,1)>HOY;
+      return`<tr>
+        <td>${MESES[mes].slice(0,3)} ${anio}</td>
+        <td>${fmtM(hm)}</td>
+        <td style="font-weight:${cob>0?700:400};color:${cob>=hm?"var(--green)":cob>0?"var(--yellow)":"var(--muted)"}">${cob>0?fmtM(cob):"—"}</td>
+        <td style="color:${diff>=0?"var(--green)":fut&&cob===0?"var(--muted)":"var(--red)"}">${fut&&cob===0?"—":diff>=0?"+"+fmtM(diff):fmtM(diff)}</td>
+        <td style="font-size:11px;color:var(--muted)">${ps.map(p=>new Date(p.fecha).toLocaleDateString("es-AR")+(p.nota?" · "+p.nota:"")).join(" / ")||"—"}</td>
+        <td>${ps.map(p=>`<button onclick="delPago('${p.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px">×</button>`).join("")}</td>
+      </tr>`;}).join("")}</tbody></table></div>`;
+  }
+}
+
+// ─── RENDER CL ────────────────────────────────────────────────────────────
+function rCl(c) {
+  document.getElementById("tb-btn").innerHTML=`<button class="btn ba bsm" onclick="openCl(null)">+ Nuevo</button>`;
+  const tipoL={ph:"PH",soc:"Sociedad",mono:"Mono"};
+  c.innerHTML=`<div class="cl-grid">${clientes.map(cl=>{
+    const obl=obligaciones.filter(o=>o.clId===cl.id);
+    const prox=obl.map(oblRich).filter(o=>o.d!==null&&o.d>=0&&o.d<=30&&o.est==="pendiente");
+    const segs=seguimientos.filter(s=>s.clId===cl.id&&s.estado!=="resuelto");
+    const cieL=cl.cierreM?` · cie ${cl.cierreM}/${["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][+cl.cierreM]||cl.cierreM}`:"";
+    return`<div class="cl-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><div style="font-weight:700;font-size:13px">${cl.nombre}</div><div style="font-family:monospace;font-size:10px;color:var(--muted)">${cl.cuit}${cl.cuitS?" · "+cl.cuitS:""}</div></div>
+        <span class="bdg" style="background:var(--bg);color:var(--muted)">${tipoL[cl.tipo]||cl.tipo}${cieL}</span>
+      </div>
+      <div style="margin-top:7px;font-size:11px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap">
+        <span>${obl.length} oblig.</span>
+        ${prox.length?`<span class="bdg" style="background:#FFF0E8;color:var(--accent)">${prox.length} próximas</span>`:""}
+        ${segs.length?`<span class="bdg" style="background:var(--rsof);color:var(--red)">${segs.length} expte.</span>`:""}
+      </div>
+      ${cl.notas?`<div style="font-size:10px;color:var(--muted);margin-top:5px">${cl.notas}</div>`:""}
+      <div style="display:flex;gap:5px;margin-top:10px">
+        <button class="btn bg bsm" onclick="openCl('${cl.id}')">Editar</button>
+        <button class="btn br bsm" onclick="delCl('${cl.id}')">×</button>
+      </div>
+    </div>`;}).join("")}</div>`;
+}
+
+// ─── CRUD OBLIGACIONES ────────────────────────────────────────────────────
+let eOblId=null;
+function openObl(id) {
+  eOblId=id;
+  const si=document.getElementById("ob-imp"); si.innerHTML=IMPS.map(i=>`<option value="${i.id}">${i.lbl}</option>`).join("");
+  const sc=document.getElementById("ob-cl"); sc.innerHTML=clientes.map(cl=>`<option value="${cl.id}">${cl.nombre}</option>`).join("");
+  const sm=document.getElementById("ob-mes"); sm.innerHTML=MESES.map((m,i)=>`<option value="${i}"${i===HOY.getMonth()?" selected":""}>${m}</option>`).join("");
+  ["ob-anio","ob-anio2"].forEach(s=>{const el=document.getElementById(s); el.innerHTML=[2023,2024,2025,2026,2027].map(y=>`<option${y===HOY.getFullYear()?" selected":""}>${y}</option>`).join("");});
+  if(id){const o=obligaciones.find(x=>x.id===id)||{};sc.value=o.clId||"";si.value=o.impId||"iva";document.getElementById("ob-mes").value=o.mes??HOY.getMonth();document.getElementById("ob-anio").value=o.anio??HOY.getFullYear();document.getElementById("ob-anio2").value=o.anio??2025;}
+  obToggle();
+  document.getElementById("ov-obl").classList.add("on");
+}
+function obToggle(){const imp=IMPS.find(i=>i.id===document.getElementById("ob-imp").value);document.getElementById("ob-men").style.display=imp?.tipo==="m"?"block":"none";document.getElementById("ob-anu").style.display=imp?.tipo==="a"?"block":"none";}
+function saveObl(){
+  const clId=document.getElementById("ob-cl").value, impId=document.getElementById("ob-imp").value; if(!clId)return;
+  const imp=IMPS.find(i=>i.id===impId);
+  const mes=+document.getElementById("ob-mes").value, anio=+(imp?.tipo==="a"?document.getElementById("ob-anio2"):document.getElementById("ob-anio")).value;
+  if(eOblId) obligaciones=obligaciones.map(o=>o.id===eOblId?{...o,clId,impId,mes,anio}:o);
+  else obligaciones.push({id:Date.now().toString(),clId,impId,mes,anio,est:"pendiente"});
+  saveAll(); cm("ov-obl"); render();
+}
+function cicloEst(id){
+  const c=["pendiente","presentado","pagado"];
+  obligaciones=obligaciones.map(o=>o.id!==id?o:{...o,est:c[(c.indexOf(o.est)+1)%c.length]});
+  saveAll(); render();
+}
+function delObl(id){obligaciones=obligaciones.filter(o=>o.id!==id);saveAll();render();}
+
+// ─── CRUD CLIENTES ────────────────────────────────────────────────────────
+let eClId=null;
+function openCl(id) {
+  eClId=id;
+  const grid=document.getElementById("cl-imps");
+  grid.innerHTML=IMPS.map(i=>`<label class="irow" id="ci-lbl-${i.id}"><input type="checkbox" id="ci-${i.id}" onchange="this.closest('label').classList.toggle('on',this.checked)"><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:${i.col}"></span>${i.lbl}</span></label>`).join("");
+  if(id){const cl=clientes.find(c=>c.id===id)||{};document.getElementById("cl-nom").value=cl.nombre||"";document.getElementById("cl-cuit").value=cl.cuit||"";document.getElementById("cl-cuits").value=cl.cuitS||"";document.getElementById("cl-tipo").value=cl.tipo||"ph";document.getElementById("cl-cie").value=cl.cierreM||"";document.getElementById("cl-notas").value=cl.notas||"";(cl.impIds||[]).forEach(iid=>{const cb=document.getElementById("ci-"+iid);if(cb){cb.checked=true;cb.closest("label").classList.add("on");}});}
+  else{["cl-nom","cl-cuit","cl-cuits","cl-notas"].forEach(i=>document.getElementById(i).value="");document.getElementById("cl-tipo").value="ph";document.getElementById("cl-cie").value="";}
+  document.getElementById("cl-t").textContent=id?"Editar cliente":"Nuevo cliente";
+  document.getElementById("ov-cl").classList.add("on");
+}
+function saveCl(){
+  const nom=document.getElementById("cl-nom").value.trim(), cuit=document.getElementById("cl-cuit").value.trim();
+  if(!nom||!cuit){alert("Nombre y CUIT son obligatorios");return;}
+  const impIds=IMPS.map(i=>i.id).filter(iid=>document.getElementById("ci-"+iid)?.checked);
+  const data={nombre:nom,cuit,cuitS:document.getElementById("cl-cuits").value.trim(),tipo:document.getElementById("cl-tipo").value,cierreM:document.getElementById("cl-cie").value,notas:document.getElementById("cl-notas").value.trim(),impIds};
+  if(eClId) clientes=clientes.map(c=>c.id===eClId?{...c,...data}:c);
+  else clientes.push({...data,id:Date.now().toString()});
+  saveAll(); cm("ov-cl"); render();
+}
+function delCl(id){if(!confirm("¿Eliminar cliente y todas sus obligaciones?"))return;clientes=clientes.filter(c=>c.id!==id);obligaciones=obligaciones.filter(o=>o.clId!==id);saveAll();render();}
+
+// ─── CRUD SEGUIMIENTOS ────────────────────────────────────────────────────
+let eSegId=null;
+function openSeg(id){
+  eSegId=id;
+  const sc=document.getElementById("sg-cl"); sc.innerHTML=clientes.map(cl=>`<option value="${cl.id}">${cl.nombre}</option>`).join("");
+  if(id){const s=seguimientos.find(x=>x.id===id)||{};sc.value=s.clId||"";document.getElementById("sg-tp").value=s.tp||"inspeccion";document.getElementById("sg-pr").value=s.prio||"activo";document.getElementById("sg-de").value=s.de||"";document.getElementById("sg-fe").value=s.fe||"";document.getElementById("sg-re").value=s.re||"";}
+  else{["sg-de","sg-fe","sg-re"].forEach(i=>document.getElementById(i).value="");}
+  document.getElementById("seg-t").textContent=id?"Editar expediente":"Nuevo expediente";
+  document.getElementById("ov-seg").classList.add("on");
+}
+function saveSeg(){
+  const clId=document.getElementById("sg-cl").value; if(!clId)return;
+  const data={clId,tp:document.getElementById("sg-tp").value,prio:document.getElementById("sg-pr").value,de:document.getElementById("sg-de").value.trim(),fe:document.getElementById("sg-fe").value,re:document.getElementById("sg-re").value.trim()};
+  if(eSegId) seguimientos=seguimientos.map(s=>s.id===eSegId?{...s,...data}:s);
+  else seguimientos.push({...data,id:Date.now().toString(),estado:"activo"});
+  saveAll(); cm("ov-seg"); render();
+}
+function togSeg(id){seguimientos=seguimientos.map(s=>s.id!==id?s:{...s,estado:s.estado==="resuelto"?"activo":"resuelto"});saveAll();render();}
+function delSeg(id){seguimientos=seguimientos.filter(s=>s.id!==id);saveAll();render();}
+
+// ─── CRUD LIBROS ──────────────────────────────────────────────────────────
+function loadLibForm(clId){
+  const lb=libros.find(l=>l.clId===clId)||{};
+  ["lib","asa","dir","aut","bal"].forEach(k=>{
+    const fe=document.getElementById("lb-"+k+"-f"); if(fe)fe.value=lb[k+"_f"]||"";
+    const es=document.getElementById("lb-"+k+"-e"); if(es)es.value=lb[k+"_e"]||"pendiente";
+  });
+  document.getElementById("lb-igj-e").value=lb["igj_e"]||"na";
+  document.getElementById("lb-obs").value=lb.obs||"";
+}
+function openLib(clId){
+  const socs=clientes.filter(cl=>cl.tipo==="soc"||cl.cuitS);
+  const sc=document.getElementById("lb-cl"); sc.innerHTML=socs.map(cl=>`<option value="${cl.id}">${cl.nombre}</option>`).join("");
+  const target=clId||(socs[0]?.id||"");
+  if(target){sc.value=target; loadLibForm(target);}
+  sc.onchange=()=>loadLibForm(sc.value);
+  document.getElementById("ov-lib").classList.add("on");
+}
+function saveLib(){
+  const clId=document.getElementById("lb-cl").value; if(!clId)return;
+  const campos=["lib","asa","dir","aut","bal"];
+  const data={clId,obs:document.getElementById("lb-obs").value.trim(),igj_e:document.getElementById("lb-igj-e").value};
+  campos.forEach(k=>{data[k+"_f"]=document.getElementById("lb-"+k+"-f").value;data[k+"_e"]=document.getElementById("lb-"+k+"-e").value;});
+  const idx=libros.findIndex(l=>l.clId===clId);
+  if(idx>=0)libros[idx]={...libros[idx],...data}; else libros.push({id:Date.now().toString(),...data});
+  saveAll(); cm("ov-lib"); render();
+}
+
+// ─── CRUD HONORARIOS ──────────────────────────────────────────────────────
+function openHcfg(clId){
+  const sc=document.getElementById("hc-cl"); sc.innerHTML=clientes.map(cl=>`<option value="${cl.id}">${cl.nombre}</option>`).join("");
+  if(clId){sc.value=clId; const h=getHcfg(clId)||{};document.getElementById("hc-monto").value=h.monto||"";document.getElementById("hc-dia").value=h.dia||"";document.getElementById("hc-forma").value=h.forma||"transferencia";document.getElementById("hc-obs").value=h.obs||"";}
+  else{["hc-monto","hc-dia","hc-obs"].forEach(i=>document.getElementById(i).value="");}
+  document.getElementById("ov-hcfg").classList.add("on");
+}
+function saveHonCfg(){
+  const clId=document.getElementById("hc-cl").value; if(!clId)return;
+  const data={clId,monto:+document.getElementById("hc-monto").value,dia:+document.getElementById("hc-dia").value,forma:document.getElementById("hc-forma").value,obs:document.getElementById("hc-obs").value.trim()};
+  const idx=honCfg.findIndex(h=>h.clId===clId);
+  if(idx>=0)honCfg[idx]={...honCfg[idx],...data}; else honCfg.push(data);
+  saveAll(); cm("ov-hcfg"); render();
+}
+function openPago(clId){
+  document.getElementById("pg-clid").value=clId;
+  const sm=document.getElementById("pg-mes"); sm.innerHTML=MESES.map((m,i)=>`<option value="${i}"${i===HOY.getMonth()?" selected":""}>${m}</option>`).join("");
+  const sa=document.getElementById("pg-anio"); sa.innerHTML=[2024,2025,2026,2027].map(y=>`<option${y===HOY.getFullYear()?" selected":""}>${y}</option>`).join("");
+  const h=getHcfg(clId)||{};
+  document.getElementById("pg-monto").value=h.monto||"";
+  document.getElementById("pg-fecha").value=HOY.toISOString().split("T")[0];
+  document.getElementById("pg-forma").value=h.forma||"transferencia";
+  document.getElementById("pg-nota").value="";
+  const cl=clientes.find(c=>c.id===clId)||{};
+  document.getElementById("pg-t").textContent="Cobrar — "+cl.nombre;
+  document.getElementById("ov-pago").classList.add("on");
+}
+function savePago(){
+  const clId=document.getElementById("pg-clid").value; if(!clId)return;
+  const monto=+document.getElementById("pg-monto").value; if(!monto){alert("Ingresá el monto");return;}
+  pagos.push({id:Date.now().toString(),clId,mes:+document.getElementById("pg-mes").value,anio:+document.getElementById("pg-anio").value,monto,fecha:document.getElementById("pg-fecha").value,forma:document.getElementById("pg-forma").value,nota:document.getElementById("pg-nota").value.trim()});
+  saveAll(); cm("ov-pago"); render();
+}
+function delPago(id){if(!confirm("¿Eliminar este pago?"))return;pagos=pagos.filter(p=>p.id!==id);saveAll();render();}
+
+// ─── UTIL ─────────────────────────────────────────────────────────────────
+function cm(id){document.getElementById(id).classList.remove("on");}
+
+// ─── BASE DE CLIENTES ─────────────────────────────────────────────────────
+const BASE = [{"id": "c001", "nombre": "ABSENTA SA", "cuit": "27355860324", "cuitS": "30718058747", "tipo": "soc", "cierreM": "3", "impIds": ["cm", "iva", "gsoc", "bal", "psoc"], "notas": "convenio; IVA; Iva diferido"}, {"id": "c002", "nombre": "ADRIANA GARCIA", "cuit": "27215653078", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "iva"], "notas": ""}, {"id": "c003", "nombre": "Aldo Grisenti", "cuit": "20134243342", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [D]"}, {"id": "c004", "nombre": "Araujo Maria", "cuit": "27245324974", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [A]"}, {"id": "c005", "nombre": "Belen Pescio", "cuit": "20386052647", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A]"}, {"id": "c006", "nombre": "Bermudez Oscar", "cuit": "20130255958", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "iva", "thys"], "notas": ""}, {"id": "c007", "nombre": "Brenda Medina", "cuit": "27399575325", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "iva"], "notas": ""}, {"id": "c008", "nombre": "Cabez Carlos Alberto", "cuit": "23248916869", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb"], "notas": ""}, {"id": "c009", "nombre": "CLAUDIO GODOY", "cuit": "20222112924", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [H]"}, {"id": "c010", "nombre": "Contreras Jorge", "cuit": "20337697721", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [G]"}, {"id": "c011", "nombre": "diego cabez", "cuit": "20309139594", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [A - Vtas]"}, {"id": "c012", "nombre": "Edel", "cuit": "20182836029", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [E]"}, {"id": "c013", "nombre": "EDY - MENSUAL", "cuit": "23161539899", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A exento]"}, {"id": "c014", "nombre": "egea mauricio", "cuit": "23294031413", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [B]"}, {"id": "c015", "nombre": "Electra Moore", "cuit": "23216032284", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A]"}, {"id": "c016", "nombre": "Euge", "cuit": "27268964164", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": ""}, {"id": "c017", "nombre": "EZEQUIEL PETRILLO", "cuit": "27324858097", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [C]"}, {"id": "c018", "nombre": "Facu Vera", "cuit": "20384689729", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [A]"}, {"id": "c019", "nombre": "FERNANDEZ CELESTE", "cuit": "27278576561", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "iva", "thys"], "notas": ""}, {"id": "c020", "nombre": "Flor Lanteri", "cuit": "27428270075", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [A]"}, {"id": "c021", "nombre": "Fredis", "cuit": "20941464670", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": ""}, {"id": "c022", "nombre": "GORGA LUIS ALBERTO", "cuit": "20183333101", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A]"}, {"id": "c023", "nombre": "GORRINI LOPEZ YAQUELINE", "cuit": "27321608839", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iva"], "notas": ""}, {"id": "c024", "nombre": "Goveo mauro A", "cuit": "20309139594", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "iva"], "notas": ""}, {"id": "c025", "nombre": "GUSTAVO", "cuit": "20182125750", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [G]"}, {"id": "c026", "nombre": "Juan Cruz", "cuit": "20382717741", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "iva"], "notas": ""}, {"id": "c027", "nombre": "LOS PETRY SRL", "cuit": "27324858097", "cuitS": "30718278895", "tipo": "soc", "cierreM": "6", "impIds": ["iibb", "iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c028", "nombre": "LUNA MARCELA ELVIRA", "cuit": "23290254434", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["cm", "mono"], "notas": "Mono [G]"}, {"id": "c029", "nombre": "MANILGAN AGRO EXPORT SA", "cuit": "20955564864", "cuitS": "30718981294", "tipo": "soc", "cierreM": "12", "impIds": ["iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c030", "nombre": "Matias Luceti", "cuit": "20300888985", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb"], "notas": ""}, {"id": "c031", "nombre": "MAURO - MENSUAL", "cuit": "20231364618", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [D]"}, {"id": "c032", "nombre": "Medina Sergio", "cuit": "23214664909", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": ""}, {"id": "c033", "nombre": "MOSQUERA", "cuit": "20184581672", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb"], "notas": ""}, {"id": "c034", "nombre": "MOSQUERA - IVA", "cuit": "20184581672", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iva"], "notas": ""}, {"id": "c035", "nombre": "Paula", "cuit": "23221585984", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A - Vtas]"}, {"id": "c036", "nombre": "Pescio ale", "cuit": "23211096519", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [D]"}, {"id": "c037", "nombre": "Serpame Lp SRL", "cuit": "20245895462", "cuitS": "30714310522", "tipo": "soc", "cierreM": "12", "impIds": ["iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c038", "nombre": "SERVIVERDE SA", "cuit": "20182835480", "cuitS": "30710762682", "tipo": "soc", "cierreM": "6", "impIds": ["cm", "iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c039", "nombre": "Simoneti Damian", "cuit": "20182835480", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb"], "notas": ""}, {"id": "c040", "nombre": "Simoneti Maxi", "cuit": "20353996100", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [A]"}, {"id": "c041", "nombre": "Simonetti Mauro", "cuit": "20332448294", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iibb", "mono"], "notas": "Mono [G] IIBB simplificado"}, {"id": "c042", "nombre": "Sirabo", "cuit": "27299579730", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["mono"], "notas": "Mono [F]"}, {"id": "c043", "nombre": "Sofia Soledad Laurino", "cuit": "27341998412", "cuitS": "", "tipo": "ph", "cierreM": "", "impIds": ["iva"], "notas": ""}, {"id": "c044", "nombre": "STORE CENTENARIO SA", "cuit": "20348181182", "cuitS": "30718329295", "tipo": "soc", "cierreM": "6", "impIds": ["iibb", "iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c045", "nombre": "WTBDC CORPORATION SA", "cuit": "20165367287", "cuitS": "33718069519", "tipo": "soc", "cierreM": "4", "impIds": ["iibb", "iva", "gsoc", "bal", "psoc"], "notas": ""}, {"id": "c046", "nombre": "TK VIO SA", "cuit": "", "cuitS": "30718194381", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c047", "nombre": "MANOVA LATIN SA", "cuit": "", "cuitS": "30715685023", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c048", "nombre": "Apeo SRL", "cuit": "", "cuitS": "30715452924", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c049", "nombre": "Coffee Synergies SA", "cuit": "", "cuitS": "30716919796", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c050", "nombre": "LLAMA ROASTING SA", "cuit": "", "cuitS": "30715518518", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c051", "nombre": "Coninsa SA", "cuit": "", "cuitS": "30587786326", "tipo": "soc", "cierreM": "10", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c052", "nombre": "Le Bionde SA", "cuit": "", "cuitS": "30713372303", "tipo": "soc", "cierreM": "12", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}, {"id": "c053", "nombre": "AREZZO AUTOMOTORES SA", "cuit": "", "cuitS": "30645934039", "tipo": "soc", "cierreM": "6", "impIds": ["gsoc", "bal", "psoc"], "notas": "Solo anuales"}];
+
+// ─── EXPORTAR / IMPORTAR ──────────────────────────────────────────────────
+function exportarDatos() {
+  const datos = {
+    version: 1,
+    fecha: new Date().toISOString(),
+    clientes, obligaciones, seguimientos, libros, honCfg, pagos
+  };
+  const blob = new Blob([JSON.stringify(datos, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  a.download = `estudio_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importarDatos(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const datos = JSON.parse(ev.target.result);
+      if (!datos.obligaciones) { alert("Archivo inválido"); return; }
+      if (!confirm("¿Reemplazar todos los datos actuales con los del archivo?")) return;
+      clientes     = datos.clientes     || clientes;
+      obligaciones = datos.obligaciones || [];
+      seguimientos = datos.seguimientos || [];
+      libros       = datos.libros       || [];
+      honCfg       = datos.honCfg       || [];
+      pagos        = datos.pagos        || [];
+      saveAll();
+      render();
+      alert("✅ Datos importados correctamente");
+    } catch { alert("Error al leer el archivo"); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+loadAll();
+render();
+</script>
+</body>
+</html>
